@@ -205,13 +205,12 @@ function onSearch(obj){//js函数开始
               if($end==null){
                 $end=date("Y-m-t");
               }
-            $sql_basic = "SELECT MAX(CO2) as p6,MAX(Temperature) as p4,MAX(Humity) as p3,Date,round(AVG(Temperature),2) as p1,round(AVG(Humity),2) as p2,round(AVG(CO2),2) as p5 FROM KnowPig.microclimate_record 
-              where  Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Date ;";
-
-              $sql_basic1 = "SELECT Humity,Datetime
+            $sql_basic = "SELECT MAX(CO2) as p6,MAX(Temperature) as p4,MAX(Humity) as p3,Date,Datetime,round(AVG(Temperature),2) as p1,round(AVG(Humity),2) as p2,round(AVG(CO2),2) as p5,Minute(Datetime) as m1,Hour(Datetime) as h1,minute FROM KnowPig.microclimate_record 
+              where  Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Year(Datetime),Month(Datetime),Day(Datetime),Hour(Datetime),minute;";
+            $sql_basic1 = "SELECT Humity,Datetime
 FROM  KnowPig.microclimate_record
 INNER JOIN
-(SELECT Date,Max(id) AS MaxDateID From KnowPig.microclimate_record where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Date ) xx
+(SELECT Date,Max(id) AS MaxDateID From KnowPig.microclimate_record where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Year(Datetime),Month(Datetime),Day(Datetime),Hour(Datetime),minute ) xx
 ON KnowPig.microclimate_record.date = xx.date 
 AND KnowPig.microclimate_record.id = xx.MaxDateID;";
             $result_basic = mysql_query($sql_basic);
@@ -220,7 +219,7 @@ AND KnowPig.microclimate_record.id = xx.MaxDateID;";
               ?>
               <li class="level1"> 
 
-                <a href="#none"><?php echo $row_basic['Date']; ?></a>
+                <a href="#none"><?php echo $row_basic['Date'];echo "  "; echo $row_basic['h1'];echo "時";echo $row_basic['minute'];echo "分";?></a>
 
                 <ul class="level2">
 
@@ -261,9 +260,9 @@ fontWeight: "900",
         verticalAlign: "top"
       },
         axisX: {
-           valueFormatString: "MM/DD",
-        interval:1,
-        intervalType: "day",
+           valueFormatString: "DD H:mm",
+        interval:2,
+        intervalType: "hour",
         },
         axisY: {
            valueFormatString: "#0度",
@@ -301,16 +300,16 @@ suffix: "%",
               if($end==null){
                 $end=date("Y-m-t");
               }
-              $sql_tmpmm = "SELECT Date,round(AVG(Temperature),2) as p1 FROM KnowPig.microclimate_record 
-              where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Date ;";
+              $sql_tmpmm = "SELECT Date,Datetime,Hour(Datetime),minute,round(AVG(Temperature),2) as p1 FROM KnowPig.microclimate_record 
+              where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Year(Datetime),Month(Datetime),Day(Datetime),Hour(Datetime),minute ;";
               $result_tmpmm = mysql_query($sql_tmpmm);
 
               while($row_tmpmm = mysql_fetch_array($result_tmpmm)){
                 $string =explode("-",$row_tmpmm['Date']);
                 $ta=(float)$string[1]-1;
                 $ya=(string)$ta;
-                $y_date=$string[0].','.$ya.','.$string[2];
-                echo "{ x:new Date(".$y_date."), y: parseFloat(".$row_tmpmm['p1'].") },"; 
+                $y_date=$string[0].','.$ya.','.$string[2].','.$row_tmpmm['Hour(Datetime)'].','.$row_tmpmm['minute'];
+                echo "{ x:new Date(".$y_date."), y: parseFloat(".$row_tmpmm['p1'].") },";
               }
             ?>
           ]
@@ -337,7 +336,7 @@ suffix: "%",
               $sql_tmpmm = "SELECT *
 FROM  KnowPig.microclimate_record 
 INNER JOIN
-(SELECT Date,Max(id) AS MaxDateID From KnowPig.microclimate_record where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Date) xx
+(SELECT Date,Datetime,Hour(Datetime),Max(id) AS MaxDateID From KnowPig.microclimate_record where   Date BETWEEN'".$start."' and '".$end."' and Place='母豬' GROUP BY Year(Datetime),Month(Datetime),Day(Datetime),Hour(Datetime),minute) xx
 ON KnowPig.microclimate_record.date = xx.date 
 AND KnowPig.microclimate_record.id = xx.MaxDateID;";
               $result_tmpmm = mysql_query($sql_tmpmm);
@@ -346,7 +345,7 @@ AND KnowPig.microclimate_record.id = xx.MaxDateID;";
                 $string =explode("-",$row_tmpmm['Date']);
                 $ta=(float)$string[1]-1;
                 $ya=(string)$ta;
-                $y_date=$string[0].','.$ya.','.$string[2];
+                $y_date=$string[0].','.$ya.','.$string[2].','.$row_tmpmm['Hour(Datetime)'].','.$row_tmpmm['minute'];
                 echo "{ x:new Date(".$y_date."), y: parseFloat(".$row_tmpmm['Humity'].") },"; 
               }
             ?>
@@ -376,16 +375,16 @@ AND KnowPig.microclimate_record.id = xx.MaxDateID;";
               if($end==null){
                   $end=date("Y-m-t");
               }
-              $sql_tmpmm = "SELECT Date,round(AVG(CO2),2) as p3 FROM KnowPig.microclimate_record
-              where Date BETWEEN '".$start."' and '".$end."' and Place='母豬' GROUP BY Date;";
+              $sql_tmpmm = "SELECT Date,Datetime,Hour(Datetime),minute,round(AVG(CO2),2) as p3 FROM KnowPig.microclimate_record
+              where Date BETWEEN '".$start."' and '".$end."' and Place='母豬' GROUP BY Year(Datetime),Month(Datetime),Day(Datetime),Hour(Datetime),minute;";
               $result_tmpmm = mysql_query($sql_tmpmm);
 
               while($row_tmpmm = mysql_fetch_array($result_tmpmm)){
                 $string =explode("-",$row_tmpmm['Date']);
                 $ta=(float)$string[1]-1;
                 $ya=(string)$ta;
-                $y_date=$string[0].','.$ya.','.$string[2];
-                echo "{ x:new Date(".$y_date."), y: parseFloat(".$row_tmpmm['p3'].") },"; 
+                $y_date=$string[0].','.$ya.','.$string[2].','.$row_tmpmm['Hour(Datetime)'].','.$row_tmpmm['minute'];
+                echo "{ x:new Date(".$y_date."), y: parseFloat(".$row_tmpmm['p3'].") },";
               }
             ?>
           
