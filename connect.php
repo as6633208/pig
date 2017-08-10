@@ -1,8 +1,8 @@
-<?php
+﻿<?php
 $db_server = "127.0.0.1";
 $db_name = "knowpig";
-$db_user = "root";
-$db_password = "";
+$db_user = "pig";
+$db_password = "npustmis123";
 $connServer = mysql_connect($db_server, $db_user, $db_password) or trigger_error(mysql_error(),E_USER_ERROR); 
 //if(!@mysql_connect($db_server, $db_user, $db_password))
   //      die("無法對資料庫連線");
